@@ -1,0 +1,33 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+project {
+    name: "Next.js FastAPI Full Stack Application"
+    description: "A full stack application with FastAPI backend and Next.js frontend"
+    
+    subtree backend {
+        name: "Backend API"
+        description: "RESTful API backend service"
+        type: "api"
+        depends_on: "fastapi-backend.mdc"
+    }
+    
+    subtree frontend {
+        name: "Frontend Application"
+        description: "Modern web frontend application"
+        type: "web"
+        depends_on: "nextjs-frontend.mdc"
+    }
+    
+    shared {
+        documentation: "README.md"
+        gitignore: ".gitignore"
+        docker: {
+            backend: "Dockerfile.backend"
+            frontend: "Dockerfile.frontend"
+            compose: "docker-compose.yml"
+        }
+    }
+}

@@ -1,0 +1,56 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Axum Design Principles
+- Use proper dependency injection with Axum's `Extension` and `State`.
+- Avoid technical debt by steering clear of unmaintained or deprecated packages.
+- Implement middleware for logging, validation, and error handling to enhance code maintainability.
+- Follow modular organization using the following architectural companion rules:
+  - @axum-router.mdc
+  - @axum-schemas.mdc
+  - @axum-models.mdc
+  - @axum-handlers.mdc
+  - @axum-migrations.mdc
+
+# Design Principles
+- Separation of Concerns: Organize code into routers, handlers, and services.
+- Single Responsibility Principle: Each component should have a focused responsibility.
+- Don't Repeat Yourself: Abstract shared logic into reusable services or utilities.
+- Keep It Simple: Prioritize clarity and simplicity over complexity.
+- Open/Closed Principle: Code should be open for extension but closed for modification.
+
+# Design Patterns
+- Router Pattern: Use `Router` to group and modularize routes by feature or domain.
+- State Management: Use `State` to share application state across handlers.
+- Repository Pattern: Encapsulate database logic in repository structs.
+- Service Layer Pattern: Centralize business logic in service structs.
+- Factory Pattern: Use factory functions to initialize shared resources.
+- DTO Pattern: Use Serde for input/output data validation and serialization.
+
+# Project Structure
+- `main.rs`: Axum entry point; sets up the app and includes routers.
+- `src/routes/`: Domain-specific route definitions.
+- `src/handlers/`: Request handlers and business logic.
+- `src/repositories/`: Data access layer, separated from logic.
+- `src/models/`: Database models and DTOs.
+- `src/schemas/`: Request and response schemas.
+- `src/core/`: Shared utilities, config management, and state setup.
+
+# Implementation Notes
+- Use `Extension` and `State` to manage dependencies across handlers.
+- Use `Router::new()` for route definitions.
+- Use `Config` structs to manage application settings and secrets.
+- Use factories for initializing services, connections, or third-party clients.
+- Maintain modularity to ensure testability and clarity.
+
+# Extensibility
+- Implement middleware for logging, security, and request tracing.
+- Use `tokio::spawn` for asynchronous background jobs.
+- Leverage async/await for I/O-bound operations.
+
+# Testing Strategy
+- Write unit tests for handler and repository components.
+- Use `axum_test` for integration and functional tests.
+- Mock dependencies with `mockall` or similar crates.

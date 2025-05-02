@@ -1,0 +1,15 @@
+---
+description: Enforce clean schema definitions using Pydantic.
+globs:
+  - "app/schemas/**/*.py"
+alwaysApply: false
+---
+
+# Schema Rules
+
+- Define separate schemas for request and response models.
+- Use Pydantic’s `BaseModel`.
+- Avoid embedding database-specific logic in schemas.
+
+## Recommended naming:
+- `UserBase`, `UserCreate`, `User`

@@ -1,0 +1,52 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+frontend {
+    name: "Next.js Frontend"
+    description: "Modern web frontend using Next.js framework"
+    type: "web"
+    language: "typescript"
+    framework: "nextjs"
+    
+    structure {
+        src/
+            app/
+            components/
+            lib/
+            styles/
+            types/
+        public/
+        tests/
+        next.config.js
+        package.json
+        tsconfig.json
+        .env
+    }
+    
+    dependencies {
+        next
+        react
+        react-dom
+        typescript
+        @types/react
+        @types/react-dom
+        @types/node
+        axios
+        styled-components
+        @testing-library/react
+        @testing-library/jest-dom
+        eslint
+        prettier
+    }
+    
+    features {
+        server_side_rendering: true
+        static_site_generation: true
+        api_routes: true
+        typescript: true
+        eslint: true
+        prettier: true
+    }
+}

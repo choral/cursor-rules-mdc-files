@@ -1,0 +1,22 @@
+---
+description: Enforce ORM model organization and naming conventions.
+globs:
+  - "app/models/**/*.py"
+alwaysApply: false
+---
+
+# Model Rules
+
+- Use SQLAlchemy ORM models and inherit from `Base`.
+- Use `__tablename__` to define table names explicitly.
+- Use type annotations for all columns.
+- Group related models by domain if necessary.
+
+## Sample Code
+```
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+```

@@ -1,0 +1,24 @@
+---
+description: Enforce route definition and modular routing best practices.
+globs:
+  - "app/routers/**/*.py"
+alwaysApply: true
+---
+
+# Router Rules
+
+- Use `APIRouter` to group routes by domain or resource.
+- Each router file should contain a `router` instance and register it with tags.
+- Do not include business logic directly in route handlers.
+- Use `Depends()` to inject service classes into handlers.
+- Keep routers lightweight and focused on I/O.
+
+## Sample Code
+```
+router = APIRouter(prefix="/users", tags=["users"])
+
+@router.get("/", response_model=List[UserOut])
+def list_users(service: UserService = Depends()):
+    return service.get_all()
+
+```

@@ -1,0 +1,73 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+project {
+    name: "Next.js Axum Full Stack Application"
+    description: "A full stack application with Axum backend and Next.js frontend"
+    
+    subtree backend {
+        name: "Backend API"
+        description: "RESTful API backend service"
+        type: "api"
+        depends_on: [
+            "axum-backend.mdc",
+            "axum-router.mdc",
+            "axum-schemas.mdc",
+            "axum-models.mdc",
+            "axum-handlers.mdc"
+        ]
+    }
+    
+    subtree frontend {
+        name: "Frontend Application"
+        description: "Modern web frontend application"
+        type: "web"
+        depends_on: "nextjs-frontend.mdc"
+    }
+    
+    shared {
+        documentation: "README.md"
+        gitignore: ".gitignore"
+        docker: {
+            backend: "Dockerfile.backend"
+            frontend: "Dockerfile.frontend"
+            compose: "docker-compose.yml"
+        }
+        environment: {
+            development: ".env.development"
+            production: ".env.production"
+            test: ".env.test"
+        }
+        ci_cd: {
+            github_actions: ".github/workflows"
+            backend_tests: "backend-tests.yml"
+            frontend_tests: "frontend-tests.yml"
+            deployment: "deploy.yml"
+        }
+    }
+    
+    api_documentation {
+        openapi: "openapi.yaml"
+        postman: "postman_collection.json"
+    }
+    
+    development {
+        setup: "setup.sh"
+        scripts: {
+            backend: {
+                dev: "cargo run"
+                test: "cargo test"
+                lint: "cargo clippy"
+                format: "cargo fmt"
+            }
+            frontend: {
+                dev: "npm run dev"
+                build: "npm run build"
+                test: "npm test"
+                lint: "npm run lint"
+            }
+        }
+    }
+}

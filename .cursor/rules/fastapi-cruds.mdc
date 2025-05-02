@@ -1,0 +1,55 @@
+---
+description: Enforce consistent CRUD structure, naming conventions, and exception handling.
+globs:
+  - "app/cruds/**/*.py"
+alwaysApply: false
+---
+
+# CRUD Rules
+
+- Store all CRUD logic in the `app/cruds/` directory.
+- Each CRUD module must correspond to a router file using `_crud.py` suffix.
+  - Example: `routers/user.py` → `cruds/user_crud.py`
+- CRUD modules must encapsulate raw DB access only (no business logic).
+- Use SQLAlchemy `Session` injected via dependency.
+- Ensure CRUD methods follow consistent naming:
+  - `get_by_id`, `get_all`, `create`, `update`, `delete`
+
+# Exception Handling
+
+- Raise descriptive exceptions when expected data is not found or integrity fails.
+- Avoid exposing raw DB exceptions (e.g., `IntegrityError`, `NoResultFound`) to the API layer directly.
+- Use `HTTPException` or custom exception classes within service or router layers.
+- CRUD modules should:
+  - Return `None` or raise custom exceptions (e.g., `NotFoundError`) when applicable.
+  - Catch common DB errors like:
+    - `IntegrityError` for unique constraint violations
+    - `NoResultFound` or `.first() is None` patterns
+
+## Example usage in `user_crud.py`:
+
+```
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+from app.models.user import User
+
+def create(db: Session, user_data: dict) -> User:
+    user = User(**user_data)
+    db.add(user)
+    try:
+        db.commit()
+        db.refresh(user)
+    except IntegrityError:
+        db.rollback()
+        raise  # Let the service layer handle translation to HTTPException
+    return user
+```
+
+##  Example structure:
+```
+app/
+  routers/
+    user.py
+  cruds/
+    user_crud.py
+```
