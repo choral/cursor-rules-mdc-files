@@ -1,15 +1,124 @@
 ---
-description: Enforce clean schema definitions using Pydantic.
-globs:
-  - "app/schemas/**/*.py"
+description: 
+globs: 
 alwaysApply: false
 ---
-
+---
+description: Enforce clean schema definitions using Pydantic.
+---
 # Schema Rules
 
 - Define separate schemas for request and response models.
-- Use Pydantic’s `BaseModel`.
+- Use Pydantic's `BaseModel`.
 - Avoid embedding database-specific logic in schemas.
 
-## Recommended naming:
-- `UserBase`, `UserCreate`, `User`
+## Schema Naming Conventions
+
+### Base Models
+- Use `{Model}Base` for base models containing common fields
+- Use `{Model}` for response models inheriting from base
+- Use `{Model}Create` for creation requests inheriting from base
+- Use `{Model}Update` for update requests (can inherit from base or be separate)
+- Example:
+  ```python
+  from pydantic import BaseModel, ConfigDict
+
+  class UserBase(BaseModel):
+      name: str
+      email: str
+      age: int
+
+  class UserCreate(UserBase):
+      password: str
+
+  class UserUpdate(BaseModel):
+      name: str | None = None
+      email: str | None = None
+      age: int | None = None
+
+  class User(UserBase):
+      model_config = ConfigDict(from_attributes=True)
+      id: int
+      created_at: datetime
+  ```
+
+## Schema Organization
+
+### File Structure
+- Group related schemas in the same file
+- Use separate files for different domains
+- Example structure:
+  ```
+  schemas/
+  ├── user.py
+  │   ├── UserBase
+  │   ├── UserCreate
+  │   ├── UserUpdate
+  │   ├── User
+  │   └── UserFilter
+  ├── post.py
+  │   ├── PostBase
+  │   ├── PostCreate
+  │   ├── PostUpdate
+  │   └── Post
+  ```
+
+### Schema Relationships
+- Use nested models for related data
+- Use `List` for one-to-many relationships
+- Example:
+  ```python
+  class PostBase(BaseModel):
+      title: str
+      content: str
+
+  class Post(PostBase):
+      model_config = ConfigDict(from_attributes=True)
+      id: int
+      author: User
+      comments: List[Comment]
+  ```
+
+## Validation Rules
+
+### Field Validation
+- Use Pydantic validators for complex validation
+- Add descriptive error messages
+- Example:
+  ```python
+  from pydantic import BaseModel, EmailStr, validator
+
+  class UserBase(BaseModel):
+      email: EmailStr
+      age: int
+
+      @validator('age')
+      def validate_age(cls, v):
+          if v < 0:
+              raise ValueError('Age cannot be negative')
+          return v
+
+  class UserCreate(UserBase):
+      password: str
+
+      @validator('password')
+      def password_strength(cls, v):
+          if len(v) < 8:
+              raise ValueError('Password must be at least 8 characters')
+          return v
+  ```
+
+### Configuration
+- Use `model_config` with `ConfigDict` for model configuration
+- Enable extra fields validation
+- Example:
+  ```python
+  class User(UserBase):
+      model_config = ConfigDict(
+          from_attributes=True,
+          extra='forbid'
+      )
+      id: int
+      created_at: datetime
+  ```
+

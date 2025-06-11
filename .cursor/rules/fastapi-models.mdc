@@ -1,22 +1,139 @@
 ---
+description: 
+globs: 
+alwaysApply: false
+---
+---
 description: Enforce ORM model organization and naming conventions.
 globs:
   - "app/models/**/*.py"
 alwaysApply: false
----
-
 # Model Rules
 
 - Use SQLAlchemy ORM models and inherit from `Base`.
 - Use `__tablename__` to define table names explicitly.
 - Use type annotations for all columns.
 - Group related models by domain if necessary.
+- Use proper relationship definitions with `back_populates`.
+- Use explicit foreign key constraints.
 
-## Sample Code
+## Model Organization
+
+### Sample File Structure
 ```
+app/
+  models/
+    __init__.py
+    user.py
+    post.py
+    comment.py
+    category.py
+```
+
+
+
+### Base Model Example
+```python
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
+from sqlalchemy.orm import relationship
+from datetime import datetime
+from ..database import Base
+
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    # Primary Key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    
+    # User Information
+    username = Column(String(50), unique=True, nullable=False)
+    email = Column(String(100), unique=True, nullable=False)
+    hashed_password = Column(String(100), nullable=False)
+    full_name = Column(String(100))
+    
+    # Profile Information
+    bio = Column(String(500))
+    profile_picture = Column(String(200))
+    is_active = Column(Boolean, default=True)
+    is_superuser = Column(Boolean, default=False)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    posts = relationship("Post", back_populates="author", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="author", cascade="all, delete-orphan")
+    categories = relationship("Category", back_populates="owner", cascade="all, delete-orphan")
 ```
+
+### Related Model Example
+```python
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy.orm import relationship
+from datetime import datetime
+from ..database import Base
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    # Primary Key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    
+    # Foreign Keys
+    author_id = Column(
+        Integer, 
+        ForeignKey("users.id", ondelete="CASCADE"), 
+        nullable=False
+    )
+    category_id = Column(
+        Integer, 
+        ForeignKey("categories.id", ondelete="SET NULL")
+    )
+    
+    # Post Content
+    title = Column(String(200), nullable=False)
+    content = Column(Text, nullable=False)
+    slug = Column(String(200), unique=True, nullable=False)
+    
+    # Post Metadata
+    is_published = Column(Boolean, default=False)
+    view_count = Column(Integer, default=0)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    published_at = Column(DateTime)
+
+    # Relationships
+    author = relationship("User", back_populates="posts")
+    category = relationship("Category", back_populates="posts")
+    comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
+    tags = relationship("Tag", secondary="post_tags", back_populates="posts")
+```
+
+## Best Practices
+
+### Column Definitions
+- Use explicit column types
+- Set appropriate constraints (nullable, unique)
+- Use descriptive names
+- Group related columns with comments
+
+### Relationships
+- Always use `back_populates` for bidirectional relationships
+- Define relationships on both sides
+- Use appropriate cascade options
+- Consider using `ondelete` and `onupdate` for foreign keys
+
+### Model Organization
+- Group related models in the same file
+- Use clear naming conventions
+- Add descriptive comments for complex fields
+- Use proper type hints
+
+### Indexes and Constraints
+- Add indexes for frequently queried columns
+- Use appropriate unique constraints
+- Consider composite indexes for related fields
+- Use check constraints for value validation

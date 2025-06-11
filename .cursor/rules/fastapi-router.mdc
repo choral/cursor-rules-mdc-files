@@ -1,10 +1,8 @@
 ---
 description: Enforce route definition and modular routing best practices.
-globs:
-  - "app/routers/**/*.py"
+globs: 
 alwaysApply: true
 ---
-
 # Router Rules
 
 - Use `APIRouter` to group routes by domain or resource.
@@ -13,12 +11,108 @@ alwaysApply: true
 - Use `Depends()` to inject service classes into handlers.
 - Keep routers lightweight and focused on I/O.
 
-## Sample Code
-```
+## Schema Association Rules
+
+### Response Models
+- Always specify response models using `response_model` parameter
+- Use Pydantic models for response schemas
+- Use base schema names (e.g., `User`) for response models
+- Group related response models in the same file
+- Example:
+  ```python
+  @router.get("/", response_model=List[User])
+  def list_users(service: UserService = Depends()):
+      return service.get_all()
+  ```
+
+### Request Models
+- Use Pydantic models for request body validation
+- Use `{Model}Create` naming convention for creation requests
+- Use `{Model}Update` naming convention for update requests
+- Group related request models in the same file
+- Example:
+  ```python
+  @router.post("/", response_model=User)
+  def create_user(
+      user_data: UserCreate,
+      service: UserService = Depends()
+  ):
+      return service.create(user_data)
+
+  @router.put("/{user_id}", response_model=User)
+  def update_user(
+      user_id: int = Path(..., description="The ID of the user to update"),
+      user_data: UserUpdate,
+      service: UserService = Depends()
+  ):
+      return service.update(user_id, user_data)
+  ```
+
+### Query Parameters
+- Use Pydantic models for query parameter validation
+- Use `{Model}Filter` naming convention for filter models
+- Example:
+  ```python
+  @router.get("/search", response_model=List[User])
+  def search_users(
+      filters: UserFilter = Depends(),
+      service: UserService = Depends()
+  ):
+      return service.search(filters)
+  ```
+
+### Path Parameters
+- Use type hints for path parameters
+- Add parameter descriptions using `Path`
+- Example:
+  ```python
+  @router.get("/{user_id}", response_model=User)
+  def get_user(
+      user_id: int = Path(..., description="The ID of the user to retrieve"),
+      service: UserService = Depends()
+  ):
+      return service.get_by_id(user_id)
+  ```
+
+## Complete Example
+```python
+from fastapi import APIRouter, Depends, Path
+from typing import List
+from .schemas import User, UserCreate, UserUpdate, UserFilter
+from .services import UserService
+
 router = APIRouter(prefix="/users", tags=["users"])
 
-@router.get("/", response_model=List[UserOut])
+@router.get("/", response_model=List[User])
 def list_users(service: UserService = Depends()):
     return service.get_all()
 
+@router.post("/", response_model=User)
+def create_user(
+    user_data: UserCreate,
+    service: UserService = Depends()
+):
+    return service.create(user_data)
+
+@router.get("/{user_id}", response_model=User)
+def get_user(
+    user_id: int = Path(..., description="The ID of the user to retrieve"),
+    service: UserService = Depends()
+):
+    return service.get_by_id(user_id)
+
+@router.put("/{user_id}", response_model=User)
+def update_user(
+    user_id: int = Path(..., description="The ID of the user to update"),
+    user_data: UserUpdate,
+    service: UserService = Depends()
+):
+    return service.update(user_id, user_data)
+
+@router.get("/search", response_model=List[User])
+def search_users(
+    filters: UserFilter = Depends(),
+    service: UserService = Depends()
+):
+    return service.search(filters)
 ```

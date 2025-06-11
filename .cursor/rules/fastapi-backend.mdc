@@ -12,7 +12,7 @@ alwaysApply: true
   - @fastapi-router.mdc
   - @fastapi-schemas.mdc
   - @fastapi-models.mdc
-  - @fastapi-cruds.mdc
+  - @fastapi-dal.mdc
   - @fastapi-alembic-migration.mdc
 
 # Design Principles
@@ -34,10 +34,11 @@ alwaysApply: true
 - `main.py`: FastAPI entry point; sets up the app and includes routers.
 - `app/routers/`: Domain-specific route definitions.
 - `app/services/`: Business logic implementations.
-- `app/repositories/`: Data access layer, separated from logic.
-- `app/schemas/`: Pydantic models for request and response.
-- `app/models/`: SQLAlchemy ORM models.
+- `app/dal/`: Data access layer, separated from logic. More information can be found at companion rule [fastapi-dal.mdc](mdc:.cursor/rules/fastapi-dal.mdc)
+- `app/schemas/`: Pydantic models for request and response. More information can be found at companion rule @fastapi-schemas.mdc
+- `app/orm_models/`: SQLAlchemy ORM models. More information can be found at companion rule @fastapi-models.mdc
 - `app/core/`: Shared utilities, config management, and dependency setup.
+- `alembic`: Contains the migration code using alembic framework. More information can be found at companion rule [fastapi-alembic-migration.mdc](mdc:.cursor/rules/fastapi-alembic-migration.mdc)
 
 # Implementation Notes
 - Use `Depends()` to manage dependencies across routes and services.

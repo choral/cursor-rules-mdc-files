@@ -1,15 +1,14 @@
 ---
 description: Enforce consistent CRUD structure, naming conventions, and exception handling.
-globs:
-  - "app/cruds/**/*.py"
+globs: 
 alwaysApply: false
 ---
 
-# CRUD Rules
+# Data Access - CRUD Rules
 
-- Store all CRUD logic in the `app/cruds/` directory.
+- Store all Data Access Layer - dal in the `app/dal/` directory.
 - Each CRUD module must correspond to a router file using `_crud.py` suffix.
-  - Example: `routers/user.py` → `cruds/user_crud.py`
+  - Example: `routers/user.py` → `app/dal/user_crud.py`
 - CRUD modules must encapsulate raw DB access only (no business logic).
 - Use SQLAlchemy `Session` injected via dependency.
 - Ensure CRUD methods follow consistent naming:
@@ -50,6 +49,6 @@ def create(db: Session, user_data: dict) -> User:
 app/
   routers/
     user.py
-  cruds/
+  dal/
     user_crud.py
 ```
